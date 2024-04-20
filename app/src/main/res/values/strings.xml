@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">TCOM project</string>
+    <string name="tcom_test_login">Tcom Test Login</string>
+    <string name="unesite_email">Unesite email</string>
+    <string name="prijavi_se">Prijavi se</string>
+    <string name="checking_credentials">Provera kredencijala...</string>
+    <string name="successfully_logged_in">Uspesno ulogovan</string>
+    <string name="dialog_title">Greska</string>
+    <string name="dialog_message">Unesite ispravne kredencijale.</string>
+    <string name="ok">OK</string>
 </resources>
