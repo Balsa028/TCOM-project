@@ -79,6 +79,11 @@ class BaseActivity : AppCompatActivity(), BaseCoordinator {
         val backStackEntry: BackStackEntry? = if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 1) else null
         return backStackEntry?.let { supportFragmentManager.findFragmentByTag(it.name) }
     }
+
+    override fun popFragmentBackstack() {
+        onBackPressed()
+    }
+
     override fun onBackPressed() {
         if (getActiveFragment() is VehicleDetailsFragment)
             supportFragmentManager.popBackStack()

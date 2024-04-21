@@ -20,6 +20,7 @@
     <string name="first_expensive">Po ceni - Prvo skuplje</string>
     <string name="back">Back</string>
     <string name="vozilo">Vozilo</string>
+    <string name="favorite_vehicle">Omiljena vozila</string>
     <string name="model">Model:</string>
     <string name="rating">Rating:</string>
     <string name="cena">Cena:</string>

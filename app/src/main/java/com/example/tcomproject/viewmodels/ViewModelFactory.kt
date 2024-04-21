@@ -12,7 +12,6 @@ class ViewModelFactory(private val application: Application) : ViewModelProvider
         return when {
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(application = application) as T
             modelClass.isAssignableFrom(VehiclesViewModel::class.java) -> VehiclesViewModel(application = application) as T
-            modelClass.isAssignableFrom(VehicleDetailsViewModel::class.java) -> VehicleDetailsViewModel(application = application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }

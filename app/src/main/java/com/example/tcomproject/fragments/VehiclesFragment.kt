@@ -2,8 +2,6 @@ package com.example.tcomproject.fragments
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.text.BoringLayout
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tcomproject.R
 import com.example.tcomproject.adapters.AdapterListener
 import com.example.tcomproject.adapters.VehiclesAdapter
-import com.example.tcomproject.models.Vehicle
 import com.example.tcomproject.utils.AUTO
 import com.example.tcomproject.utils.EMPTY_STRING
 import com.example.tcomproject.utils.MOTOR
@@ -29,7 +26,6 @@ import com.example.tcomproject.viewmodels.ViewModelFactory
 
 class VehiclesFragment : BaseFragment() {
 
-    private lateinit var viewModel: VehiclesViewModel
     private lateinit var sortTextView: TextView
     private lateinit var autoTextView: TextView
     private lateinit var motorTextView: TextView
@@ -47,31 +43,33 @@ class VehiclesFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application))[VehiclesViewModel::class.java]
         observeChanges()
     }
 
     override fun onResume() {
         super.onResume()
 
-        if (allVehicleList.isEmpty())
+        if (viewModel.getAllVehicleList().isEmpty()) {
             viewModel.getAllVehiclesList()
-        else
-            adapter.setVehicleList(getFilteredListBySelectedType(isAscendingSort))
-
+        } else if (searchEditText.text.isNotEmpty()){
+            //u slucaju da je vec upisano nesto u search-u kad se user vrati sa prethodnog activitija (Details-a)
+            adapter.setVehicleList(viewModel.filterListBySearch(searchEditText.text.toString()))
+        } else {
+            adapter.setVehicleList(viewModel.getFilteredListBySelectedType(isAscendingSort, selectedVehicleType))
+        }
     }
 
     private fun observeChanges() {
         viewModel.getFreshStateOfVehiclesList().observe(viewLifecycleOwner) { list ->
             list?.let { vehicleList ->
-                allVehicleList = vehicleList
-                selectedVehicleList = getFilteredListBySelectedType(isAscendingSort)
-                adapter.setVehicleList(selectedVehicleList)
+                viewModel.updateAllVehicleList(vehicleList)
+                viewModel.updateSelectedVehicleList(viewModel.getFilteredListBySelectedType(isAscendingSort, selectedVehicleType))
             } ?: run {
                 adapter.clearList()
                 showAlertDialog(getString(R.string.dialog_title), getString(R.string.dialog_message_vehicles), getString(R.string.ok))
             }
         }
+        viewModel.selectedVehicleListLiveData.observe(viewLifecycleOwner) { adapter.setVehicleList(it) }
 
         viewModel.isLoading().observe(viewLifecycleOwner) {
             viewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
@@ -110,7 +108,7 @@ class VehiclesFragment : BaseFragment() {
 
         searchEditText.doOnTextChanged { text, _ , _ , _ ->
             //search samo odradio sa contains metodom (mozda je trebalo sa startwith ali kontam da nema veze cim nije nigde specifirano)
-            adapter.setVehicleList(filterListBySearch(text ?: EMPTY_STRING))
+            adapter.setVehicleList(viewModel.filterListBySearch(text ?: EMPTY_STRING))
         }
     }
 
@@ -119,16 +117,7 @@ class VehiclesFragment : BaseFragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         recyclerView.setHasFixedSize(true)
         recyclerView.isNestedScrollingEnabled = true
-
-        adapter.setAdapterListener(object : AdapterListener {
-            override fun onToVehicleDetailsScreen(vehicleId: Int) {
-                coordinator?.addFragment(VehicleDetailsFragment.newInstance(vehicleId), true)
-            }
-
-            override fun onAddToFavorites(vehicleId: Int) {
-                viewModel.addToFavorites(vehicleId)
-            }
-        })
+        adapter.setAdapterListener(this)
         recyclerView.adapter = adapter
     }
 
@@ -146,7 +135,7 @@ class VehiclesFragment : BaseFragment() {
                         menuItem.isChecked = true
                         popupMenu?.menu?.findItem(R.id.first_expensive)?.isChecked = false
                         isAscendingSort = true
-                        adapter.setVehicleList(sortListAndReturn(isAscendingSort))
+                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort))
                         true
                     }
 
@@ -154,7 +143,7 @@ class VehiclesFragment : BaseFragment() {
                         menuItem.isChecked = true
                         popupMenu?.menu?.findItem(R.id.first_cheapest)?.isChecked = false
                         isAscendingSort = false
-                        adapter.setVehicleList(sortListAndReturn(isAscendingSort))
+                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort))
                         true
                     }
 
@@ -188,9 +177,8 @@ class VehiclesFragment : BaseFragment() {
     private fun handleTypesClickListenerEvent(type: Int) {
         Util.saveSelectedVehicleType(type, requireActivity())
         selectedVehicleType = type
-        selectedVehicleList = getFilteredListBySelectedType(isAscendingSort)
+        viewModel.updateSelectedVehicleList(viewModel.getFilteredListBySelectedType(isAscendingSort, selectedVehicleType))
         decideTextColorBasedOnType(selectedVehicleType)
-        adapter.setVehicleList(selectedVehicleList)
     }
 
     companion object {

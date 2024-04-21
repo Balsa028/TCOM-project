@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -16,12 +15,9 @@ import com.example.tcomproject.R
 import com.example.tcomproject.models.Vehicle
 import com.example.tcomproject.utils.addEuroCurrency
 import com.example.tcomproject.utils.formatDoubleForDisplay
-import com.example.tcomproject.viewmodels.VehicleDetailsViewModel
-import com.example.tcomproject.viewmodels.ViewModelFactory
 
 class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
 
-    private lateinit var viewModel: VehicleDetailsViewModel
     private lateinit var vehicleImageView: ImageView
     private lateinit var favoriteImageView: ImageView
     private lateinit var modelTextView: TextView
@@ -39,7 +35,7 @@ class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application))[VehicleDetailsViewModel::class.java]
+        //pozvao sam ovde api /vehicles kako je pisalo u figmi ali je lagano moglo od vec zapamcene liste da se izvuce ->  val vehicle = viewModel.getAllVehicleList().first { it.vehicleID == vehicleId }
         viewModel.getVehicleDetails(vehicleId)
         observeChanges()
     }
@@ -53,8 +49,8 @@ class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
 
         viewModel.getFreshStateOfVehiclesList().observe(viewLifecycleOwner) { list ->
             list?.let { vehicleList ->
-                allVehicleList = vehicleList
-                selectedVehicleList = getFilteredListBySelectedType(isAscendingSort)
+                viewModel.updateAllVehicleList(vehicleList)
+                viewModel.updateSelectedVehicleList(viewModel.getFilteredListBySelectedType(isAscendingSort, selectedVehicleType))
             } ?: showAlertDialog(getString(R.string.dialog_title), getString(R.string.dialog_message_vehicles), getString(R.string.ok))
 
         }
@@ -72,10 +68,14 @@ class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
         }
 
         viewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading)
+            if (isLoading) {
+               // parent.visibility = View.GONE -> pokusao sam ovako da sakrijem malo ovo ruzno loadovanje ali izgleda jos ruznije sa ovim linijama
                 showProgressDialog(getString(R.string.fetching_data))
-            else
+            }
+            else {
+               // parent.visibility = View.VISIBLE
                 dismissProgressDialog()
+            }
         }
     }
 
@@ -89,7 +89,7 @@ class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
         longitudeTextView = view.findViewById(R.id.longitude_textview)
         backTextView = view.findViewById(R.id.back_button_text_view)
         backTextView.setOnClickListener {
-            requireActivity().onBackPressed()
+            coordinator?.popFragmentBackstack()
         }
         favoriteImageView.setOnClickListener {
             viewModel.addToFavorites(vehicleId)
@@ -103,6 +103,7 @@ class VehicleDetailsFragment(val vehicleId: Int) : BaseFragment() {
         latitudeTextView.text = vehicle.location.latitude.formatDoubleForDisplay()
         longitudeTextView.text = vehicle.location.longitude.formatDoubleForDisplay()
 
+        //kada se ide na sliku details -> back button -> opet neki click na neki vehicle iz nekog razloga se vidi stara slika nekih pola sekundi dok se ne dovucu podaci sa /Vehicles i ubace novi u details screen
         Glide.with(requireActivity())
             .load(vehicle.imageURL)
             .transform(CenterCrop(), RoundedCorners(20))

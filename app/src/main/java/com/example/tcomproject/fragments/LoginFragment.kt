@@ -10,7 +10,6 @@ import android.widget.Toast
 import com.example.tcomproject.R
 import com.example.tcomproject.viewmodels.LoginViewModel
 import com.example.tcomproject.viewmodels.ViewModelFactory
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 
 
@@ -18,7 +17,7 @@ class LoginFragment : BaseFragment() {
 
     private lateinit var emailEditText: EditText
     private lateinit var loginBtn: Button
-    private lateinit var viewModel: LoginViewModel
+    private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
@@ -30,25 +29,25 @@ class LoginFragment : BaseFragment() {
         emailEditText = view.findViewById(R.id.email_edit_text)
         loginBtn = view.findViewById(R.id.btnLogin)
         loginBtn.setOnClickListener {
-            viewModel.initiateLogin(emailEditText.text.toString())
+            loginViewModel.initiateLogin(emailEditText.text.toString())
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application))[LoginViewModel::class.java]
+        loginViewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application))[LoginViewModel::class.java]
         observeChanges()
     }
 
     private fun observeChanges() {
-        viewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
+        loginViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             if (isLoading)
                 showProgressDialog(getString(R.string.checking_credentials))
             else
                 dismissProgressDialog()
         }
 
-        viewModel.isLoginSuccess().observe(viewLifecycleOwner) { isSuccess ->
+        loginViewModel.isLoginSuccess().observe(viewLifecycleOwner) { isSuccess ->
             if (isSuccess) {
                 Toast.makeText(requireActivity(), getString(R.string.successfully_logged_in), Toast.LENGTH_SHORT).show()
                 coordinator?.addFragment(MapFragment.newInstance(), false)
