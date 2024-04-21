@@ -1,4 +1,9 @@
 package com.example.tcomproject.utils
 
-class Extensions {
-}
+    fun String.addEuroCurrency(): String {
+        return "$this €"
+    }
+
+    fun Double.formatDoubleForDisplay(): String {
+        return String.format("%.6f", this)
+    }

@@ -8,17 +8,17 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.example.tcomproject.R
-import com.example.tcomproject.utils.Util
 import com.example.tcomproject.viewmodels.LoginViewModel
 import com.example.tcomproject.viewmodels.ViewModelFactory
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 
 
 class LoginFragment : BaseFragment() {
 
     private lateinit var emailEditText: EditText
     private lateinit var loginBtn: Button
-    private val viewModel: LoginViewModel by viewModels { ViewModelFactory(requireActivity().application) }
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
@@ -29,14 +29,14 @@ class LoginFragment : BaseFragment() {
     private fun initViews(view: View) {
         emailEditText = view.findViewById(R.id.email_edit_text)
         loginBtn = view.findViewById(R.id.btnLogin)
-
         loginBtn.setOnClickListener {
             viewModel.initiateLogin(emailEditText.text.toString())
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application))[LoginViewModel::class.java]
         observeChanges()
     }
 
@@ -51,9 +51,9 @@ class LoginFragment : BaseFragment() {
         viewModel.isLoginSuccess().observe(viewLifecycleOwner) { isSuccess ->
             if (isSuccess) {
                 Toast.makeText(requireActivity(), getString(R.string.successfully_logged_in), Toast.LENGTH_SHORT).show()
-                coordinator?.addFragment(MapFragment.newInstance())
+                coordinator?.addFragment(MapFragment.newInstance(), false)
             } else {
-                showAlertDialog(getString(R.string.dialog_title), getString(R.string.dialog_message), getString(R.string.ok))
+                showAlertDialog(getString(R.string.dialog_title), getString(R.string.dialog_message_login), getString(R.string.ok))
             }
         }
     }

@@ -4,8 +4,25 @@
     <string name="unesite_email">Unesite email</string>
     <string name="prijavi_se">Prijavi se</string>
     <string name="checking_credentials">Provera kredencijala...</string>
+    <string name="fetching_data">Fetching data...</string>
     <string name="successfully_logged_in">Uspesno ulogovan</string>
     <string name="dialog_title">Greska</string>
-    <string name="dialog_message">Unesite ispravne kredencijale.</string>
+    <string name="dialog_message_login">Unesite ispravne kredencijale.</string>
+    <string name="dialog_message_vehicles">Doslo je do greske, pokusajte ponovo.</string>
+    <string name="dialog_message_no_vehicle">Doslo je do greske prilikom povlacenja podatka vozila.</string>
     <string name="ok">OK</string>
+    <string name="sort">Sortiraj</string>
+    <string name="search_hint">Pretrazi vozila</string>
+    <string name="car">Auto</string>
+    <string name="motor">Motor</string>
+    <string name="truck">Kamion</string>
+    <string name="first_cheap">Po ceni - Prvo jeftinije</string>
+    <string name="first_expensive">Po ceni - Prvo skuplje</string>
+    <string name="back">Back</string>
+    <string name="vozilo">Vozilo</string>
+    <string name="model">Model:</string>
+    <string name="rating">Rating:</string>
+    <string name="cena">Cena:</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
 </resources>
