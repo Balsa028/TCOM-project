@@ -5,6 +5,7 @@
     <color name="light_orange">#FFA300</color>
     <color name="light_gray">#FFD3D3D3</color>
     <color name="dark_gray">#919191</color>
+    <color name="lighter_gray">#716F6F</color>
     <color name="darker_gray">#1F1E1E</color>
     <color name="darkest_gray">#121212</color>
     <color name="light_blue">#206DFF</color>

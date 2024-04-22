@@ -26,4 +26,5 @@
     <string name="cena">Cena:</string>
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
+    <string name="gmaps_api_key">AIzaSyBbjWy8wv-E8XdRMWGj7epz5MNBfeaodBs</string>
 </resources>

@@ -55,6 +55,10 @@ dependencies {
 
     //Image loading
     implementation ("com.github.bumptech.glide:glide:4.13.2")
+    implementation ("com.squareup.picasso:picasso:2.8")
+
+    //maps
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
 
     //test
     testImplementation("junit:junit:4.13.2")

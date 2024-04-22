@@ -13,6 +13,10 @@ class VehiclesViewModel(application: Application) : AndroidViewModel(application
     private var allVehicleList: List<Vehicle> = emptyList()
     private var selectedVehicleList: List<Vehicle> = emptyList()
 
+    private var _searchText: String = ""
+    val searchText: String
+        get() = _searchText
+
     private val _selectedVehicleListLiveData = MutableLiveData<List<Vehicle>>()
     val selectedVehicleListLiveData: LiveData<List<Vehicle>> = _selectedVehicleListLiveData
 
@@ -34,13 +38,11 @@ class VehiclesViewModel(application: Application) : AndroidViewModel(application
 
     fun getVehicleById() = repository.vehicle
 
-    fun updateSelectedVehicleList(list: List<Vehicle>) {
-        _selectedVehicleListLiveData.value = list
-    }
+    fun updateSelectedVehicleList(list: List<Vehicle>) { _selectedVehicleListLiveData.value = list }
 
-    fun updateAllVehicleList(list: List<Vehicle>) {
-        _allVehicleListLiveData.value = list
-    }
+    fun updateAllVehicleList(list: List<Vehicle>) { _allVehicleListLiveData.value = list }
+
+    fun updateSearchText(newText: String) { _searchText = newText }
 
     fun getAllVehicleList(): List<Vehicle> = _allVehicleListLiveData.value ?: emptyList()
 
@@ -52,14 +54,24 @@ class VehiclesViewModel(application: Application) : AndroidViewModel(application
         return if (isAscending) returnList.sortedBy { it.price } else returnList.sortedByDescending { it.price }
     }
 
-    fun sortListAndReturn(isAscending: Boolean): List<Vehicle> {
+    fun sortListAndReturn(isAscending: Boolean, searchText: String): List<Vehicle> {
         selectedVehicleList = _selectedVehicleListLiveData.value ?: emptyList()
-        return if (isAscending) selectedVehicleList.sortedBy { it.price }
-        else selectedVehicleList.sortedByDescending { it.price }
+        val sortedList = if (isAscending) selectedVehicleList.sortedBy { it.price } else selectedVehicleList.sortedByDescending { it.price }
+
+        return if (searchText.isNotEmpty()) sortedList.filter { it.name.contains(searchText, ignoreCase = true) }
+        else sortedList
     }
 
     fun filterListBySearch(searchText: CharSequence): List<Vehicle> {
         selectedVehicleList = _selectedVehicleListLiveData.value ?: emptyList()
         return selectedVehicleList.filter { it.name.contains(searchText, ignoreCase = true) }
     }
+
+    fun findVehicleId(markerTag: Int): Int  {
+        selectedVehicleList = _selectedVehicleListLiveData.value ?: emptyList()
+        return selectedVehicleList.first { it.vehicleID == markerTag }.vehicleID
+    }
+
+    fun checkSearchFieldAndReturnList(searchText: String, list: List<Vehicle>): List<Vehicle> =
+        if (searchText.isNotEmpty()) filterListBySearch(searchText) else list
 }

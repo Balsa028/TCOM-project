@@ -69,7 +69,9 @@ class VehiclesFragment : BaseFragment() {
                 showAlertDialog(getString(R.string.dialog_title), getString(R.string.dialog_message_vehicles), getString(R.string.ok))
             }
         }
-        viewModel.selectedVehicleListLiveData.observe(viewLifecycleOwner) { adapter.setVehicleList(it) }
+        viewModel.selectedVehicleListLiveData.observe(viewLifecycleOwner) { list ->
+            adapter.setVehicleList(viewModel.checkSearchFieldAndReturnList(viewModel.searchText, list))
+        }
 
         viewModel.isLoading().observe(viewLifecycleOwner) {
             viewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
@@ -93,6 +95,8 @@ class VehiclesFragment : BaseFragment() {
     private fun initViews(view: View) {
         recyclerView = view.findViewById(R.id.vehicles_recycler_view)
         searchEditText = view.findViewById(R.id.search_edit_text)
+        if (viewModel.searchText.isNotEmpty())
+            searchEditText.setText(viewModel.searchText)
         sortTextView = view.findViewById(R.id.sort_text_view)
         sortTextView.setOnClickListener { handleDropMenu(it) }
         setupRecyclerView()
@@ -108,7 +112,8 @@ class VehiclesFragment : BaseFragment() {
 
         searchEditText.doOnTextChanged { text, _ , _ , _ ->
             //search samo odradio sa contains metodom (mozda je trebalo sa startwith ali kontam da nema veze cim nije nigde specifirano)
-            adapter.setVehicleList(viewModel.filterListBySearch(text ?: EMPTY_STRING))
+            viewModel.updateSearchText(text.toString())
+            adapter.setVehicleList(viewModel.filterListBySearch(viewModel.searchText))
         }
     }
 
@@ -135,7 +140,7 @@ class VehiclesFragment : BaseFragment() {
                         menuItem.isChecked = true
                         popupMenu?.menu?.findItem(R.id.first_expensive)?.isChecked = false
                         isAscendingSort = true
-                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort))
+                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort, viewModel.searchText))
                         true
                     }
 
@@ -143,7 +148,7 @@ class VehiclesFragment : BaseFragment() {
                         menuItem.isChecked = true
                         popupMenu?.menu?.findItem(R.id.first_cheapest)?.isChecked = false
                         isAscendingSort = false
-                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort))
+                        adapter.setVehicleList(viewModel.sortListAndReturn(isAscendingSort, viewModel.searchText))
                         true
                     }
 
